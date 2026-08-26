@@ -5,6 +5,30 @@ Runs as an independent PySide6 desktop app — never modifies or integrates with
 
 ---
 
+## Project Structure
+
+```txt
+multisports-timer/
+├── ROADMAP.md
+├── pyproject.toml              # project metadata, dependencies
+├── main.py                     # entry point — launches the overlay
+├── overlay.py                  # overlay window class (frameless, transparent, always-on-top)
+├── timer.py                    # countdown logic — QTimer, duration, state tracking
+├── alerts.py                   # time's-up visual flash + sound playback
+├── hotkeys.py                  # global keyboard shortcuts (pynput/keyboard listener)
+├── config.py                   # constants — duration, screen position, hotkey bindings
+├── sessions.log                # optional: append-only log of start/end timestamps
+├── assets/
+│   └── alert.wav               # sound file played when time is up
+├── test_overlay.py             # PoC — validates overlay renders over E6 (done, delete when no longer needed)
+└── dist/                       # PyInstaller output (generated, gitignored)
+    └── multisports-timer.exe
+```
+
+**Flat by design.** This is a small single-purpose app — no `src/` package hierarchy needed. If v2 adds ROLLER integration, add `roller_client.py` and `qr_scanner.py` at the same level.
+
+---
+
 ## Critical Risk: Fullscreen Overlay Compatibility
 
 **This must be validated before any real development begins.**
@@ -15,6 +39,7 @@ E6 Product Launcher may run in **exclusive fullscreen** mode (direct display out
 - **Exclusive fullscreen** = app takes direct control of the display. Overlays are invisible.
 
 If E6 uses exclusive fullscreen, your only options are:
+
 1. Switch E6 to borderless/windowed mode (if the setting exists in E6).
 2. Run the overlay on a **second monitor** (the touchscreen or a dedicated small display).
 3. Accept a non-overlay approach (e.g., a separate small window staff alt-tabs to).
@@ -24,11 +49,13 @@ If E6 uses exclusive fullscreen, your only options are:
 Before writing any timer logic, build the smallest possible overlay and test it live against E6:
 
 **What to build:**
+
 - A single PySide6 window (~200x100px) with a solid-colored rectangle and text ("TEST OVERLAY").
 - Set `Qt.FramelessWindowHint`, `Qt.WindowStaysOnTopHint`, `Qt.WA_TranslucentBackground`.
 - Position it in a corner of the screen.
 
 **How to test:**
+
 1. Launch E6 and start a golf session (any mode).
 2. Launch your PoC script.
 3. Confirm: is the colored rectangle visible on top of E6?
@@ -36,6 +63,7 @@ Before writing any timer logic, build the smallest possible overlay and test it 
 5. If E6 has a borderless/windowed setting, toggle it and re-test.
 
 **Decision tree:**
+
 - Overlay visible in all E6 modes → proceed with full build.
 - Overlay visible only in windowed/borderless → document the requirement for staff to use that E6 mode, then proceed.
 - Overlay never visible → stop. Revisit architecture (second monitor, separate window, or different approach entirely).
@@ -48,15 +76,15 @@ Before writing any timer logic, build the smallest possible overlay and test it 
 
 ### Step 1: Overlay Window Shell
 
-- [ ] Create frameless, transparent, always-on-top PySide6 window.
-- [ ] Window is not focusable by default (does not steal input from E6).
-- [ ] Window positions itself in a fixed screen corner (configurable later).
-- [ ] Window stays visible over E6 (validated in PoC above).
+- [x] Create frameless, transparent, always-on-top PySide6 window.
+- [x] Window is not focusable by default (does not steal input from E6).
+- [x] Window positions itself in a fixed screen corner (configurable later).
+- [x] Window stays visible over E6 (validated in PoC above).
 - [ ] Window can be dragged by staff (optional — hold modifier key + mouse drag, or skip entirely if position is fixed).
 
 ### Step 2: Countdown Display
 
-- [ ] Large, high-contrast countdown text (white on semi-transparent dark background, or similar).
+- [x] Large, high-contrast countdown text (white on semi-transparent dark background, or similar).
 - [ ] Format: `MM:SS` — readable from several feet away on the projector screen.
 - [ ] Timer uses `QTimer` at 1-second intervals to update the display.
 - [ ] Hardcoded duration initially (e.g., 15 minutes) — no UI for changing it yet.
@@ -122,33 +150,44 @@ Customer scans their ROLLER ticket QR code at the simulator bay → app verifies
 ## Windows / PySide6 Gotchas for Always-On-Top Overlays
 
 ### Exclusive Fullscreen (THE big one)
+
 Covered above. If E6 uses exclusive fullscreen, no Qt window can overlay it. Validate first.
 
 ### Frameless + Transparent Requirements
+
 On Windows, transparent overlay windows **must** have both `Qt.FramelessWindowHint` and `Qt.WA_TranslucentBackground` set. Missing either one results in a black background or no transparency.
 
 ### Focus Stealing
+
 By default, showing a new window grabs focus. For an overlay this is bad — it would yank input away from E6. Solutions:
+
 - Set `Qt.WindowDoesNotAcceptFocus` on the overlay window.
 - Alternatively, set `setAttribute(Qt.WA_ShowWithoutActivating)` before showing.
 - Staff keyboard shortcuts can still work via global hotkeys (see next point).
 
 ### Global Keyboard Shortcuts
+
 Standard `keyPressEvent` only works when your window has focus. Since the overlay should NOT have focus, you need a global hotkey library:
+
 - `pynput` — cross-platform, `Listener` for global key hooks.
 - `keyboard` — simpler API, Windows-focused.
 - These run a background thread that captures key events system-wide. Make sure to clean up the listener on app exit.
 
 ### Taskbar & Alt-Tab
+
 An always-on-top overlay will show in the taskbar and Alt-Tab cycle by default, which is confusing for staff. Fix:
+
 - Set `Qt.Tool` window type (hides from taskbar and Alt-Tab).
 - Or set `Qt.WA_Tool` attribute.
 
 ### Multiple Monitors
+
 If the PC has multiple displays (projector + touchscreen), confirm which monitor E6 renders on. Position the overlay on the same monitor. Use `QScreen.geometry()` to handle this.
 
 ### DWM Composition
+
 Overlaying any window over a fullscreen app forces Windows to re-enable Desktop Window Manager (DWM) composition. This can add a small amount of input latency. For a golf simulator this is likely negligible, but worth noting if players report any "feel" difference.
 
 ### PyInstaller Packaging
+
 When packaging with PyInstaller, use `--windowed` (no console window) and `--onefile` for easy distribution. Test the packaged `.exe` on the actual venue PC — path handling and Qt plugin loading can differ from your dev machine.

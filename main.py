@@ -1,5 +1,17 @@
+from overlay import Overlay
+import sys
+from PySide6.QtWidgets import QApplication
+
+import signal
+
 def main():
-    print("Hello from multisports-timer!")
+    app = QApplication(sys.argv)
+    
+    overlay = Overlay()
+    overlay.show()
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
