@@ -29,7 +29,6 @@ class Overlay(QWidget):
         self.screen = QApplication.primaryScreen().geometry()
         self.move(self.screen.width() - self.width() - 20, 20)
         self.session = SessionTimer()
-        self.session.start()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_tick)
         self.timer.start(1000)
@@ -50,4 +49,7 @@ class Overlay(QWidget):
         self.label.setText("Done")
     
     def _register_keybinds(self):
-        self.HkManager.register("enter", "toggle pause", self.session.toggle_pause)   
+        self.HkManager.register("enter", "toggle pause", self.session.toggle_pause)
+        self.HkManager.register("r", "reset timer", self.session.reset)
+        self.HkManager.register("s", "start game", self.session.start)
+        
