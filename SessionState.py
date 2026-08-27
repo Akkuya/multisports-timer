@@ -4,3 +4,4 @@ class SessionState(Enum):
     IDLE = auto()
     RUNNING = auto()
     FINISHED = auto()
+    PAUSED = auto()

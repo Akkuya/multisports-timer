@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "keyboard>=0.13.5",
     "pyside6>=6.11.2",
     "watchdog>=6.0.0",
 ]
