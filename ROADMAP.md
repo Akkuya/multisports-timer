@@ -11,21 +11,25 @@ Runs as an independent PySide6 desktop app — never modifies or integrates with
 multisports-timer/
 ├── ROADMAP.md
 ├── pyproject.toml              # project metadata, dependencies
+├── config.yaml                 # duration, screen position, hotkey bindings (WIP)
 ├── main.py                     # entry point — launches the overlay
-├── overlay.py                  # overlay window class (frameless, transparent, always-on-top)
-├── timer.py                    # countdown logic — QTimer, duration, state tracking
-├── alerts.py                   # time's-up visual flash + sound playback
-├── hotkeys.py                  # global keyboard shortcuts (pynput/keyboard listener)
-├── config.py                   # constants — duration, screen position, hotkey bindings
-├── sessions.log                # optional: append-only log of start/end timestamps
+├── timer/                      # core domain logic (no Qt / UI dependencies)
+│   ├── session.py              # SessionTimer — countdown state, tick, transitions
+│   └── state.py                # SessionState enum (IDLE/RUNNING/PAUSED/FINISHED)
+├── ui/                         # presentation layer
+│   ├── overlay.py              # Overlay window (frameless, transparent, always-on-top)
+│   └── states.py               # (planned) visual flash + sound alert, finished-state view
+├── input/                      # any input source — staff hotkeys today, QR scanner in v2
+│   └── hotkeys.py              # GlobalHotkeyManager (keyboard-library listener + Qt signal hop)
+├── roller/                     # (planned / v2) ROLLER API client
 ├── assets/
-│   └── alert.wav               # sound file played when time is up
+│   └── alert.wav               # (planned) sound file played when time is up
 ├── test_overlay.py             # PoC — validates overlay renders over E6 (done, delete when no longer needed)
 └── dist/                       # PyInstaller output (generated, gitignored)
     └── multisports-timer.exe
 ```
 
-**Flat by design.** This is a small single-purpose app — no `src/` package hierarchy needed. If v2 adds ROLLER integration, add `roller_client.py` and `qr_scanner.py` at the same level.
+**Split by domain, not by technology.** The `timer/` package holds pure countdown logic with no Qt/UI leakage, so it stays unit-testable and unchanged when the UI evolves. `input/` is generic enough to absorb the v2 QR scanner alongside the current hotkeys. New v2 domains (ROLLER ticket lookup, session queue) get their own packages (`roller/`, etc.) without touching existing files.
 
 ---
 
