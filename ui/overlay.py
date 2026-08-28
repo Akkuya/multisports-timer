@@ -1,13 +1,9 @@
-import sys
-from PySide6 import QtCore
-from PySide6.QtWidgets import QKeySequenceEdit
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
-from SessionState import SessionState
-from hotkeyManager import GlobalHotkeyManager
-from timer import SessionTimer
-from typing import override
+from timer.state import SessionState
+from input.hotkeys import GlobalHotkeyManager
+from timer.session import SessionTimer
 
 
 class Overlay(QWidget):
@@ -42,7 +38,6 @@ class Overlay(QWidget):
         if self.session.state == SessionState.FINISHED:    
             self.show_finished_state()
             
-    
     def show_finished_state(self):
         self.setFixedSize(self.screen.width(), self.screen.height())
         self.move(0,0)

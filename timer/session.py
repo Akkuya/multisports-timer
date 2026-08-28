@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import QTimer
-from SessionState import SessionState
+from timer.state import SessionState
 
 class SessionTimer:
     def __init__(self, duration_seconds=15*60):
@@ -9,6 +9,7 @@ class SessionTimer:
         self.reset()
         
     def start(self):
+        if self.state != SessionState.IDLE: return
         self.remaining = self.duration
         self.state = SessionState.RUNNING
     

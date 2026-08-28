@@ -1,4 +1,4 @@
-from overlay import Overlay
+from ui.overlay import Overlay
 import sys
 from PySide6.QtWidgets import QApplication
 
