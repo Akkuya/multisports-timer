@@ -21,14 +21,15 @@ multisports-timer/
 │   ├── session.py              # SessionTimer — countdown state, tick, transitions
 │   └── state.py                # SessionState enum (IDLE/RUNNING/PAUSED/FINISHED)
 ├── ui/                         # presentation layer
-│   └── overlay.py              # Overlay window (frameless, transparent, always-on-top)
+│   ├── overlay.py              # Overlay window (frameless, transparent, always-on-top)
+│   └── palette.py              # centralized color tokens
 ├── input/                      # any input source — staff hotkeys today, QR scanner in v2
 │   └── hotkeys.py              # GlobalHotkeyManager (keyboard-library listener + Qt signal hop)
 ├── audio/                      # sound playback
 │   ├── __init__.py
-│   └── media_player.py         # AlertPlayer — plays the bundled alert sound
+│   └── media_player.py         # SoundManager — plays registered SFX by name (missing assets no-op)
 ├── assets/
-│   └── alert.mp3               # sound file played when time is up
+│   └── alert.mp3               # sound played when the session ends; other SFX optional
 ├── roller/                     # (planned / v2) ROLLER API client
 ├── multisports-timer.spec      # PyInstaller spec (onefile, windowed)
 ├── build.ps1                   # build the .exe from the spec

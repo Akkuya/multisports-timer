@@ -8,8 +8,13 @@ Output: dist/multisports-timer.exe
 """
 from pathlib import Path
 
-def resource(*parts):
-    return str(Path(SPECPATH) / "assets" / Path(*parts))
+def asset_files():
+    """Every file under assets/, so future SFX (e.g. ending-soon.mp3) are
+    automatically bundled without editing the spec each time."""
+    assets_dir = Path(SPECPATH) / "assets"
+    if not assets_dir.is_dir():
+        return []
+    return [(str(p), "assets") for p in assets_dir.iterdir() if p.is_file()]
 
 # Disable PyInstaller's attempt to bulk-copy every dynamic lib in PySide6
 # (that drags in Qt6WebEngineCore.dll ~194 MB and dozens of unused Qt
@@ -19,9 +24,7 @@ a = Analysis(
     ["main.py"],
     pathex=[],
     binaries=[],
-    datas=[
-        (resource("alert.mp3"), "assets"),
-    ],
+    datas=asset_files(),
     hiddenimports=[
         "PySide6.QtMultimedia",
     ],
