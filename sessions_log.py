@@ -13,8 +13,7 @@ when frozen). Runtime logs are gitignored, so nothing sensitive is committed.
 """
 
 import logging
-import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from config import log_path_for  # resolves config-configured log file paths

@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QTimer, Qt
-from PySide6.QtGui import QFont, QFontMetrics, QLinearGradient, QPainter, QPainterPath
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QLinearGradient, QPainter, QPainterPath
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
 from audio.media_player import SoundManager
@@ -124,7 +124,7 @@ class Overlay(QWidget):
             self.lbl_caption.setText("PAUSED")
         elif self.session.state != SessionState.FINISHED:
             self.lbl_caption.setText("TIME REMAINING")
-        color = accent
+        color = QColor(accent)
         color.setAlpha(230)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(color)
