@@ -23,3 +23,14 @@ sounds:
 logging:
   event_log: events.log
   plain_log: session.log
+
+# Global hotkeys. Values use the 'keyboard' library syntax: a single key
+# ("r", "enter") or a chord ("ctrl+shift+q"). These map to the app's actions
+# and can be remapped here without rebuilding. The app must run with admin
+# rights for the hotkey hook to work.
+keybinds:
+  toggle_pause: enter   # pause/resume a running session (never starts one)
+  reset: r              # stop and clear the timer back to IDLE
+  start: s              # start a new session (only from IDLE)
+  add_min: shift+=      # extend the current session by one minute
+  quit: ctrl+shift+q    # exit the app
