@@ -33,6 +33,10 @@ MANIFEST
 *.spec
 !multisports-timer.spec
 
+# App icon: the .ico is derived from app_icon.png at build time (build.ps1).
+# Keep the source PNG; ignore the generated .ico.
+app_icon.ico
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
