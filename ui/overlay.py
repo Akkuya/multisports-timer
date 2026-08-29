@@ -8,6 +8,7 @@ from audio.media_player import SoundManager
 from config import seconds, sound_file, volume
 from input.hotkeys import GlobalHotkeyManager
 from paths import resource_path
+from sessions_log import log_event
 from timer.session import SessionTimer
 from timer.state import SessionState
 from ui import palette
@@ -162,6 +163,7 @@ class Overlay(QWidget):
         first = not self._finished_entered
         if first:
             self.sounds.play("alert")
+            log_event("session_finish", "Session finished")
         self._finished_entered = True
         self.setFixedSize(self.screen.width(), self.screen.height())
         self.move(0, 0)
@@ -231,6 +233,7 @@ class Overlay(QWidget):
         self.session.reset()
         self._finished_entered = False
         self._last_warn_played = False
+        log_event("session_reset", "Session reset")
         self.restore_normal_state()
 
     # ---- hotkeys -----------------------------------------------------------
@@ -239,8 +242,16 @@ class Overlay(QWidget):
             if self.session.state == SessionState.IDLE:
                 self.session.start()
                 self.sounds.play("start")
+                log_event("session_start", "Session started")
 
-        self.HkManager.register("enter", "toggle pause", self.session.toggle_pause)
+        def toggle_pause():
+            self.session.toggle_pause()
+            if self.session.state == SessionState.PAUSED:
+                log_event("session_pause", "Session paused", remaining=self.session.remaining)
+            elif self.session.state == SessionState.RUNNING:
+                log_event("session_resume", "Session resumed", remaining=self.session.remaining)
+
+        self.HkManager.register("enter", "toggle pause", toggle_pause)
         self.HkManager.register("r", "reset timer", self.reset_session)
         self.HkManager.register("s", "start game", start_game)
         self.HkManager.register("ctrl+shift+q", "quit app", self.exit)
@@ -258,5 +269,6 @@ class Overlay(QWidget):
         # event loop would keep running and the process would hang. Close the
         # window first for a clean teardown, then sys.exit() guarantees the
         # process actually terminates. Do not 'simplify' this back to close().
+        log_event("app_shutdown", "Application shutting down")
         self.close()
         sys.exit()
