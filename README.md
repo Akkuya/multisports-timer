@@ -37,9 +37,19 @@ or directly:
 uv run pyinstaller --noconfirm multisports-timer.spec
 ```
 
-The output is a single self-contained executable at
+The output is a single standalone executable at
 `dist\multisports-timer.exe`. Rebuild it after every source change before
 running the version at the venue.
+
+**`build.ps1` assembles a complete, self-contained deploy bundle in `dist\`:**
+the exe plus a loose `assets\` folder (with all configured sound files) and a
+starter `config.yaml`. Deploy but the whole `dist\` folder to the venue.
+
+**Sound assets are not bundled into the exe** — they sit loose in
+`dist\assets\` and are loaded next to the exe at runtime (see
+[Configuration](#configuration)). Because they're separate files, staff can
+drag in or replace their own `.mp3` audio — or tweak `config.yaml` — at the
+venue with **no rebuild required**. Rebuilding is only needed for code changes.
 
 ### Autostart at logon (optional)
 
@@ -112,9 +122,12 @@ defaults.
 | `logging` | `plain_log` | `session.log` | Human-friendly prose |
 | `keybinds` | *see above* | | Global-hotkey bindings |
 
-Sound files are looked up under `assets/`; a missing file simply doesn't play,
-and an empty string (`''`) disables that effect. Logging values may be bare
-filenames (placed in the program's `logs/` folder) or absolute paths.
+Sound files are looked up in the portable `<assets>/` folder **next to the
+running program** (the exe's folder when frozen, the repo root in dev) — they
+are not bundled inside the exe, so venues can drop in or replace audio without
+rebuilding. A missing file simply doesn't play, and an empty string (`''`)
+disables that effect. Logging values may be bare filenames (placed in the
+program's `logs/` folder) or absolute paths.
 
 > The palette/colors are defined in code in `ui/palette.py`, not in
 > `config.yaml`.
@@ -135,14 +148,13 @@ most recent events. Logs are also flushed on normal shutdown and on
 
 ```
 audio/                 # sound playback (media_player.py -> SoundManager)
-assets/                # bundled sound effects (alert.mp3, ...)
+assets/                # sound effects, deployed loose next to the exe (alert.mp3, ...)
 input/hotkeys.py       # GlobalHotkeyManager (global hook -> Qt-thread dispatch)
 timer/session.py       # SessionTimer state machine (+ on_state_change callback)
 timer/state.py         # SessionState enum
 ui/overlay.py          # the borderless overlay window + keybind/hotkey wiring
 ui/palette.py          # colors & styling
 config.py / config.yaml# runtime settings (edited next to the exe)
-paths.py               # path resolution that works from source and when frozen
 sessions_log.py        # dual-file event logging (flushes each event)
 main.py                # entry point (graceful SIGINT/log flushing)
 build.ps1 / *.spec     # PyInstaller packaging
@@ -154,7 +166,9 @@ install-autostart.ps1  # scheduled-task autostart at logon
 - E6 runs borderless/fullscreen on a mirrored monitor + projector, which the
   OS treats as a single logical display — the overlay is verified against this
   live.
-- This app must be rebuilt (`.\build.ps1`) after **any** source change before
-  it is redeployed.
+- **Deploy the whole `dist\` folder** — exe, `assets\`, and `config.yaml`.
+  It's already assembled as a complete bundle by `build.ps1`.
+- This app must be rebuilt (`.\build.ps1`) after **any** code change before it
+  is redeployed. Audio files can be swapped at the venue without a rebuild.
 - A live smoke test (GUI, audio, and hotkeys) requires a real display and
   admin rights and cannot be exercised in a headless shell.
