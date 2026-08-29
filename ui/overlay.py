@@ -131,7 +131,6 @@ class Overlay(QWidget):
         painter.end()
 
     def toggle_pulse(self):
-        self._pulse_on = not self._pulse_on
         # gentle text dimming for the breathing effect — stays readable
         text = palette.TEXT_FINISHED if self._pulse_on else palette.TEXT_FINISHED.darker(115)
         self.lbl_time.setStyleSheet(f"color: {text.name()}; background: transparent;")
