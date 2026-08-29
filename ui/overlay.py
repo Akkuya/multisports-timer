@@ -1,9 +1,14 @@
+from pathlib import Path
+
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
+from audio.media_player import AlertPlayer
 from timer.state import SessionState
 from input.hotkeys import GlobalHotkeyManager
 from timer.session import SessionTimer
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class Overlay(QWidget):
@@ -30,6 +35,7 @@ class Overlay(QWidget):
         self.timer.timeout.connect(self.on_tick)
         self.timer.start(1000)
         self._register_keybinds()
+        self.alert_player = AlertPlayer(PROJECT_ROOT / "assets" / "alert.mp3")
         
     
     def on_tick(self):
@@ -40,6 +46,7 @@ class Overlay(QWidget):
             self.show_finished_state()
             
     def show_finished_state(self):
+        self.play_alert()
         self.setFixedSize(self.screen.width(), self.screen.height())
         self.move(0,0)
         self.label.setText("Done")
@@ -57,4 +64,6 @@ class Overlay(QWidget):
         self.HkManager.register("enter", "toggle pause", self.session.toggle_pause)
         self.HkManager.register("r", "reset timer", self.reset_session)
         self.HkManager.register("s", "start game", self.session.start)
-        
+
+    def play_alert(self):
+        self.alert_player.play()
