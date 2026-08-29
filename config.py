@@ -95,7 +95,7 @@ def seconds() -> int:
     try:
         seconds = int(seconds)
     except (TypeError, ValueError):
-        seconds = DEFAULT_CONFIG["duration_minutes"]
+        seconds = DEFAULT_CONFIG["duration_seconds"]
     return max(1, seconds)
 
 
