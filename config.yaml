@@ -1,1 +1,16 @@
-duration: 15*60
+# Multisport timer runtime settings.
+# Edit next to the .exe and restart the app — changes apply on next launch.
+# Missing or invalid keys fall back to safe defaults.
+
+# Countdown length in minutes.
+duration_minutes: 15
+
+# Master sound volume (0.0 – 1.0).
+volume: 0.5
+
+# Optional sound effects, looked up in assets/. A missing file simply doesn't
+# play. Set a name to '' (empty) to disable that effect, or add/remove lines.
+sounds:
+  alert: alert.mp3             # played when the session ends
+  ending_soon: ending-soon.mp3 # subtle chime in the final ~10 seconds
+  start: start.mp3             # played when staff starts a session
