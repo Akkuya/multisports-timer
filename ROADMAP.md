@@ -10,23 +10,33 @@ Runs as an independent PySide6 desktop app — never modifies or integrates with
 ```txt
 multisports-timer/
 ├── ROADMAP.md
+├── README.md
 ├── pyproject.toml              # project metadata, dependencies
+├── uv.lock                     # pinned dependency lockfile
 ├── config.yaml                 # duration, screen position, hotkey bindings (WIP)
+├── .gitignore
 ├── main.py                     # entry point — launches the overlay
+├── paths.py                    # resource_path() — resolves assets in dev & frozen builds
 ├── timer/                      # core domain logic (no Qt / UI dependencies)
 │   ├── session.py              # SessionTimer — countdown state, tick, transitions
 │   └── state.py                # SessionState enum (IDLE/RUNNING/PAUSED/FINISHED)
 ├── ui/                         # presentation layer
-│   ├── overlay.py              # Overlay window (frameless, transparent, always-on-top)
-│   └── states.py               # (planned) visual flash + sound alert, finished-state view
+│   └── overlay.py              # Overlay window (frameless, transparent, always-on-top)
 ├── input/                      # any input source — staff hotkeys today, QR scanner in v2
 │   └── hotkeys.py              # GlobalHotkeyManager (keyboard-library listener + Qt signal hop)
-├── roller/                     # (planned / v2) ROLLER API client
+├── audio/                      # sound playback
+│   ├── __init__.py
+│   └── media_player.py         # AlertPlayer — plays the bundled alert sound
 ├── assets/
-│   └── alert.wav               # (planned) sound file played when time is up
+│   └── alert.mp3               # sound file played when time is up
+├── roller/                     # (planned / v2) ROLLER API client
+├── multisports-timer.spec      # PyInstaller spec (onefile, windowed)
+├── build.ps1                   # build the .exe from the spec
+├── install-autostart.ps1       # register a scheduled task to autostart on logon
 ├── test_overlay.py             # PoC — validates overlay renders over E6 (done, delete when no longer needed)
-└── dist/                       # PyInstaller output (generated, gitignored)
-    └── multisports-timer.exe
+├── build/                      # PyInstaller work dir (generated, gitignored)
+├── dist/                       # PyInstaller output (generated, gitignored)
+│   └── multisports-timer.exe
 ```
 
 **Split by domain, not by technology.** The `timer/` package holds pure countdown logic with no Qt/UI leakage, so it stays unit-testable and unchanged when the UI evolves. `input/` is generic enough to absorb the v2 QR scanner alongside the current hotkeys. New v2 domains (ROLLER ticket lookup, session queue) get their own packages (`roller/`, etc.) without touching existing files.
