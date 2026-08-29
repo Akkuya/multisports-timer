@@ -244,6 +244,7 @@ class Overlay(QWidget):
         self.HkManager.register("r", "reset timer", self.reset_session)
         self.HkManager.register("s", "start game", start_game)
         self.HkManager.register("ctrl+shift+q", "quit app", self.exit)
+        self.HkManager.register("shift+=", "add minute", self.session.add_min)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
