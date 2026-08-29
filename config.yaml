@@ -14,3 +14,12 @@ sounds:
   alert: alert.mp3             # played when the session ends
   ending_soon: ending-soon.mp3 # subtle chime in the final ~10 seconds
   start: start.mp3             # played when staff starts a session
+
+# Session event logging. Two files are written from the same events:
+#   events.log  - structured key=value lines (machine-parseable)
+#   session.log - human-friendly prose
+# Values may be bare filenames (placed in the program's logs/ folder) or
+# absolute paths. Empty/missing entries use the defaults below.
+logging:
+  event_log: events.log
+  plain_log: session.log

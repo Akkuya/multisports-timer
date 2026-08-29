@@ -24,10 +24,37 @@ DEFAULT_CONFIG = {
 }
 
 
+def _prog_dir() -> Path:
+    """Directory next to the running program (the exe's folder when frozen,
+    otherwise the repo root)."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent
+
+
 def config_path() -> Path:
     """Path of the editable config file next to the running program."""
-    base = Path(getattr(sys, "frozen", False) and sys.executable or Path(__file__).resolve().parent)
-    return base / "config.yaml"
+    return _prog_dir() / "config.yaml"
+
+
+def log_path_for(key: str, default_name: str) -> Path:
+    """Resolve a log file path from the config's ``logging`` section.
+
+    The configured value may be a bare filename (placed in the program's
+    ``logs`` subfolder) or a full path. Falls back to ``logs/default_name``
+    when unset or invalid.
+    """
+    raw = _load_raw()
+    logging_cfg = raw.get("logging")
+    value = None
+    if isinstance(logging_cfg, dict):
+        value = logging_cfg.get(key)
+    if not isinstance(value, str) or not value.strip():
+        return _prog_dir() / "logs" / default_name
+    p = Path(value)
+    if p.is_absolute():
+        return p
+    return _prog_dir() / "logs" / p
 
 
 def _load_raw() -> dict:
