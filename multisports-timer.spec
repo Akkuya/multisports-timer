@@ -6,22 +6,24 @@ Build (from repo root):
 
 Output: dist/multisports-timer.exe
 """
-from PyInstaller.utils.hooks import collect_dynamic_libs
 from pathlib import Path
 
 def resource(*parts):
     return str(Path(SPECPATH) / "assets" / Path(*parts))
 
+# Disable PyInstaller's attempt to bulk-copy every dynamic lib in PySide6
+# (that drags in Qt6WebEngineCore.dll ~194 MB and dozens of unused Qt
+# modules). Rely on Analysis' natural dependency resolution instead, which
+# follows the .pyd imports actually used (QtWidgets/QtMultimedia).
 a = Analysis(
     ["main.py"],
     pathex=[],
-    binaries=collect_dynamic_libs("PySide6"),
+    binaries=[],
     datas=[
         (resource("alert.mp3"), "assets"),
     ],
     hiddenimports=[
         "PySide6.QtMultimedia",
-        "PySide6.QtMultimediaWidgets",
     ],
     hookspath=[],
     hooksconfig={},
@@ -32,9 +34,31 @@ a = Analysis(
         "PySide6.QtQml",
         "PySide6.QtQuick",
         "PySide6.Qt3DCore",
+        "PySide6.QtCharts",
+        "PySide6.QtDataVisualization",
+        "PySide6.QtGraphs",
+        "PySide6.QtDesigner",
+        "PySide6.QtPdf",
+        "PySide6.QtPdfWidgets",
+        "PySide6.QtLocation",
+        "PySide6.QtMultimediaWidgets",
     ],
     noarchive=False,
 )
+
+# Drop Qt modules pulled in transitively that this app doesn't use but that
+# PySide6's hooks still grab: the QML/Quick DLLs (Qt6Quick.dll ~6.5 MB +
+# Qt6Qml*.dll ~13 MB, linked by QtMultimedia's QML backend) and all the
+# per-language .qm translation files (this app is English-only).
+_UNUSED_BINS = (
+    "Qt6Quick.dll",
+    "Qt6Qml.dll",
+    "Qt6QmlMeta.dll",
+    "Qt6QmlModels.dll",
+    "Qt6QmlWorkerScript.dll",
+)
+a.binaries = [b for b in a.binaries if not b[0].endswith(_UNUSED_BINS)]
+a.datas = [d for d in a.datas if "translations" not in d[0]]
 
 pyz = PYZ(a.pure)
 
