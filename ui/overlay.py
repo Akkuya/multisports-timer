@@ -36,7 +36,7 @@ class Overlay(QWidget):
         self._normal_pos = (self.screen.width() - PANEL_W - 20, 20)
 
         self.session = SessionTimer(
-            duration_seconds=5, on_state_change=self._on_session_state
+            duration_seconds=seconds(), on_state_change=self._on_session_state
         )
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_tick)
@@ -126,7 +126,7 @@ class Overlay(QWidget):
         color.setAlpha(230)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(color)
-        painter.drawRoundedRect(rect.left() + 5, rect.top() + 5, 5, rect.height() - 10, 3, 3)
+        painter.drawRoundedRect(rect.left(), rect.top() + 10, 5, rect.height() - 18, 3, 3)
 
         painter.end()
 
