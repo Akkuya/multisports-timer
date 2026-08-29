@@ -97,44 +97,44 @@ Before writing any timer logic, build the smallest possible overlay and test it 
 - [x] Window is not focusable by default (does not steal input from E6).
 - [x] Window positions itself in a fixed screen corner (configurable later).
 - [x] Window stays visible over E6 (validated in PoC above).
-- [ ] Window can be dragged by staff (optional — hold modifier key + mouse drag, or skip entirely if position is fixed).
+- [x] Window can be dragged by staff (optional — hold modifier key + mouse drag, or skip entirely if position is fixed).
 
 ### Step 2: Countdown Display
 
 - [x] Large, high-contrast countdown text (white on semi-transparent dark background, or similar).
-- [ ] Format: `MM:SS` — readable from several feet away on the projector screen.
-- [ ] Timer uses `QTimer` at 1-second intervals to update the display.
-- [ ] Hardcoded duration initially (e.g., 15 minutes) — no UI for changing it yet.
-- [ ] Timer does not drift (use system clock or `QTimer` elapsed tracking, not naive sleep accumulation).
+- [x] Format: `MM:SS` — readable from several feet away on the projector screen.
+- [x] Timer uses `QTimer` at 1-second intervals to update the display.
+- [x] Hardcoded duration initially (e.g., 15 minutes) — no UI for changing it yet.
+- [x] Timer does not drift (use system clock or `QTimer` elapsed tracking, not naive sleep accumulation).
 
 ### Step 3: Start / Reset Control
 
-- [ ] Keyboard shortcut to start the timer (e.g., `F9` or `Ctrl+Space`) — staff have keyboard access.
-- [ ] Keyboard shortcut to reset the timer back to full duration (e.g., `F10` or `Ctrl+R`).
-- [ ] Optionally: a small "Start" / "Reset" button visible in the overlay (staff-only, positioned out of the customer's sight line).
-- [ ] Timer cannot be started while already running (ignore duplicate start input).
+- [x] Keyboard shortcut to start the timer (e.g., `F9` or `Ctrl+Space`) — staff have keyboard access.
+- [x] Keyboard shortcut to reset the timer back to full duration (e.g., `F10` or `Ctrl+R`).
+- [x] Optionally: a small "Start" / "Reset" button visible in the overlay (staff-only, positioned out of the customer's sight line).
+- [x] Timer cannot be started while already running (ignore duplicate start input).
 
 ### Step 4: Time's-Up Alert
 
-- [ ] When countdown reaches 00:00, overlay switches to a high-visibility "TIME'S UP" state.
-- [ ] Visual: flashing background or large blinking text (clear enough to notice from the hitting bay).
-- [ ] Audio: play a short alert sound (beep, chime, or buzzer — use `QMediaPlayer` or `QSoundEffect`; bundle a `.wav` or `.mp3` file).
-- [ ] Alert persists until staff explicitly dismisses it (reset shortcut).
+- [x] When countdown reaches 00:00, overlay switches to a high-visibility "TIME'S UP" state.
+- [x] Visual: flashing background or large blinking text (clear enough to notice from the hitting bay).
+- [x] Audio: play a short alert sound (beep, chime, or buzzer — use `QMediaPlayer` or `QSoundEffect`; bundle a `.wav` or `.mp3` file).
+- [x] Alert persists until staff explicitly dismisses it (reset shortcut).
 
 ### Step 5: Reset Flow
 
 - [x] After alert, pressing reset returns overlay to idle/"ready" state.
-- [ ] Countdown resets to full duration, visual alert clears, sound stops.
-- [ ] Overlay is now ready for the next group.
+- [x] Countdown resets to full duration, visual alert clears, sound stops.
+- [x] Overlay is now ready for the next group.
 
 ### Step 6: Polish & Reliability
 
-- [ ] App starts automatically or is launched by a simple script/shortcut staff double-click.
-- [ ] App survives E6 crashing or restarting (no dependency on E6 process).
-- [ ] App runs in a single instance (prevent accidental double-launch).
-- [ ] Configurable duration (hardcoded constant or simple config file — not a GUI settings panel).
-- [ ] Optional: log sessions (start time, end time) to a local file for auditing usage.
-- [ ] Package into a standalone `.exe` with PyInstaller (or similar) so the venue PC doesn't need a Python environment.
+- [x] App starts automatically or is launched by a simple script/shortcut staff double-click.
+- [x] App survives E6 crashing or restarting (no dependency on E6 process).
+- [x] App runs in a single instance (prevent accidental double-launch).
+- [x] Configurable duration (hardcoded constant or simple config file — not a GUI settings panel).
+- [x] Optional: log sessions (start time, end time) to a local file for auditing usage.
+- [x] Package into a standalone `.exe` with PyInstaller (or similar) so the venue PC doesn't need a Python environment.
 
 ---
 
