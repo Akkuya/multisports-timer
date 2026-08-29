@@ -5,7 +5,7 @@ from PySide6.QtGui import QFont, QFontMetrics, QLinearGradient, QPainter, QPaint
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
 from audio.media_player import SoundManager
-from config import seconds, sound_file, volume
+from config import keybinds, seconds, sound_file, volume
 from input.hotkeys import GlobalHotkeyManager
 from paths import resource_path
 from sessions_log import log_event
@@ -277,11 +277,12 @@ class Overlay(QWidget):
             elif self.session.state == SessionState.RUNNING:
                 log_event("session_resume", "Session resumed", remaining=self.session.remaining)
 
-        self.HkManager.register("enter", "toggle pause", toggle_pause)
-        self.HkManager.register("r", "reset timer", self.reset_session)
-        self.HkManager.register("s", "start game", start_game)
-        self.HkManager.register("ctrl+shift+q", "quit app", self.exit)
-        self.HkManager.register("shift+=", "add minute", self.session.add_min)
+        kb = config.keybinds()
+        self.HkManager.register(kb["toggle_pause"], "toggle pause", toggle_pause)
+        self.HkManager.register(kb["reset"], "reset timer", self.reset_session)
+        self.HkManager.register(kb["start"], "start game", start_game)
+        self.HkManager.register(kb["quit"], "quit app", self.exit)
+        self.HkManager.register(kb["add_min"], "add minute", self.session.add_min)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

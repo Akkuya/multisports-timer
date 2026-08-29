@@ -23,6 +23,18 @@ DEFAULT_CONFIG = {
     },
 }
 
+# Default global-hotkey bindings. Keys are the internal action names used
+# throughout the code; values are the 'keyboard'-library key/chord strings,
+# e.g. "enter", "r", or "ctrl+shift+q". Remappable via the 'keybinds' section
+# of config.yaml.
+DEFAULT_KEYBINDS = {
+    "toggle_pause": "enter",
+    "reset": "r",
+    "start": "s",
+    "quit": "ctrl+shift+q",
+    "add_min": "shift+=",
+}
+
 
 def _prog_dir() -> Path:
     """Directory next to the running program (the exe's folder when frozen,
@@ -105,3 +117,22 @@ def sound_file(name: str) -> str:
     if isinstance(sounds, dict) and name in sounds and isinstance(sounds[name], str):
         return sounds[name]
     return DEFAULT_CONFIG["sounds"].get(name, "")
+
+
+@functools.lru_cache(maxsize=1)
+def keybinds() -> dict[str, str]:
+    """Global-hotkey bindings, keyed by action name.
+
+    Reads the ``keybinds`` section of config.yaml. A missing or non-string
+    value falls back to the entry from ``DEFAULT_KEYBINDS``.
+    """
+    raw = _load_raw()
+    cfg = raw.get("keybinds")
+    if not isinstance(cfg, dict):
+        return dict(DEFAULT_KEYBINDS)
+    result = dict(DEFAULT_KEYBINDS)
+    for action, default_key in DEFAULT_KEYBINDS.items():
+        value = cfg.get(action)
+        if isinstance(value, str) and value.strip():
+            result[action] = value.strip()
+    return result
