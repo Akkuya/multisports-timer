@@ -38,3 +38,6 @@ class SessionTimer:
     def formatted(self):
         mins, secs = divmod(max(self.remaining, 0), 60)
         return f"{mins:02d}:{secs:02d}"
+
+    def add_min(self):
+        self.remaining+=60
