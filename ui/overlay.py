@@ -9,6 +9,7 @@ from config import seconds, sound_file, volume
 from input.hotkeys import GlobalHotkeyManager
 from paths import resource_path
 from sessions_log import log_event
+import sessions_log
 from timer.session import SessionTimer
 from timer.state import SessionState
 from ui import palette
@@ -34,7 +35,9 @@ class Overlay(QWidget):
         self.screen = QApplication.primaryScreen().geometry()
         self._normal_pos = (self.screen.width() - PANEL_W - 20, 20)
 
-        self.session = SessionTimer(duration_seconds=seconds())
+        self.session = SessionTimer(
+            duration_seconds=seconds(), on_state_change=self._on_session_state
+        )
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_tick)
         self.timer.start(1000)
@@ -54,6 +57,8 @@ class Overlay(QWidget):
         self.pulse_timer = QTimer(self)
         self.pulse_timer.timeout.connect(self.toggle_pulse)
         self._pulse_on = False
+
+        self._paused = False
 
         # opacity fade between the compact panel and the fullscreen end screen,
         # so the end screen eases in instead of popping up.
@@ -113,13 +118,15 @@ class Overlay(QWidget):
         elif self.session.state == SessionState.RUNNING and self.session.remaining <= WARN_SECONDS:
             accent = palette.ACCENT_WARN
             self.lbl_caption.setText("LAST MINUTE")
+        elif self.session.state == SessionState.PAUSED:
+            self.lbl_caption.setText("PAUSED")
         elif self.session.state != SessionState.FINISHED:
             self.lbl_caption.setText("TIME REMAINING")
         color = accent
         color.setAlpha(230)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(color)
-        painter.drawRoundedRect(rect.left() + 5, rect.top() + 5, 5, rect.height() - 10, 3, 3)
+        painter.drawRoundedRect(rect.left(), rect.top() + 10, 5, rect.height() - 18, 3, 3)
 
         painter.end()
 
@@ -158,6 +165,25 @@ class Overlay(QWidget):
                 self._last_warn_played = True
                 self.sounds.play("ending_soon")
             self.update()  # re-evaluate warning accent each second
+
+    # ---- paused state ------------------------------------------------------
+    def _on_session_state(self, state):
+        # React immediately (hotkeys dispatch on the Qt thread) to a pause, so
+        # the panel doesn't wait for the next second's tick to flip visuals.
+        if state == SessionState.PAUSED:
+            self._paused = True
+            self.lbl_time.setStyleSheet(f"color: {palette.ACCENT_PAUSED.name()}; background: transparent;")
+            self.lbl_caption.setText("PAUSED")
+            self.lbl_caption.setStyleSheet(
+                f"color: {palette.ACCENT_PAUSED.name()}; background: transparent; letter-spacing: 3px;"
+            )
+        else:
+            was_paused = self._paused
+            self._paused = False
+            if was_paused:
+                # restore the standard light/dark styling for the live panel
+                self._style_labels()
+        self.update()
 
     def show_finished_state(self):
         first = not self._finished_entered
@@ -270,5 +296,6 @@ class Overlay(QWidget):
         # window first for a clean teardown, then sys.exit() guarantees the
         # process actually terminates. Do not 'simplify' this back to close().
         log_event("app_shutdown", "Application shutting down")
+        sessions_log.flush()
         self.close()
         sys.exit()

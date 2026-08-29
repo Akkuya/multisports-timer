@@ -72,12 +72,43 @@ def _ensure_configured():
     _configured = True
 
 
+def _flush():
+    """Push buffered log lines to disk. Safe to call any time."""
+    for handler in logger.handlers:
+        try:
+            handler.flush()
+        except Exception:
+            pass
+
+
 def log_event(event: str, message: str, **fields) -> None:
     """Record one session event to both log files.
 
     ``event`` is the machine-readable name (e.g. ``session_start``);
     ``message`` is a short human sentence for the plaintext log; ``fields``
     are extra key=value pairs included in both formats.
+
+    Every write is flushed immediately so a long-running program that is
+    killed (or crashes) never loses recent events from the buffer.
     """
     _ensure_configured()
     logger.info(message, extra={"event": event, "fields": fields})
+    _flush()
+
+
+def flush() -> None:
+    """Flush any buffered log output to disk."""
+    _ensure_configured()
+    _flush()
+
+
+def close() -> None:
+    """Flush and close both log files. Call once during shutdown."""
+    _ensure_configured()
+    for handler in logger.handlers:
+        try:
+            handler.flush()
+            handler.close()
+        except Exception:
+            pass
+        logger.removeHandler(handler)
