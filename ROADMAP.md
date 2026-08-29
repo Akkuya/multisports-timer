@@ -123,7 +123,7 @@ Before writing any timer logic, build the smallest possible overlay and test it 
 
 ### Step 5: Reset Flow
 
-- [ ] After alert, pressing reset returns overlay to idle/"ready" state.
+- [x] After alert, pressing reset returns overlay to idle/"ready" state.
 - [ ] Countdown resets to full duration, visual alert clears, sound stops.
 - [ ] Overlay is now ready for the next group.
 
