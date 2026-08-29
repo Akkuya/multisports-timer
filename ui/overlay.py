@@ -73,5 +73,11 @@ class Overlay(QWidget):
         self.alert_player.play()
     
     def exit(self):
+        # self.close() alone is NOT enough to quit here. The overlay is
+        # deliberately shown without activating (WA_ShowWithoutActivating) and
+        # never takes focus, so Qt's quitOnLastWindowClosed never fires; the
+        # event loop would keep running and the process would hang. Close the
+        # window first for a clean teardown, then sys.exit() guarantees the
+        # process actually terminates. Do not 'simplify' this back to close().
         self.close()
         sys.exit()
