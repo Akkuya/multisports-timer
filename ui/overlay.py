@@ -1,3 +1,5 @@
+import sys
+
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
@@ -65,7 +67,11 @@ class Overlay(QWidget):
         self.HkManager.register("enter", "toggle pause", self.session.toggle_pause)
         self.HkManager.register("r", "reset timer", self.reset_session)
         self.HkManager.register("s", "start game", self.session.start)
-        self.HkManager.register("ctrl+shift+q", "quit app", self.close)
+        self.HkManager.register("ctrl+shift+q", "quit app", self.exit)
 
     def play_alert(self):
         self.alert_player.play()
+    
+    def exit(self):
+        self.close()
+        sys.exit()
