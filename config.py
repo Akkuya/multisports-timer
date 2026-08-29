@@ -1,10 +1,9 @@
 """Loads runtime settings from config.yaml with safe defaults.
 
-Unlike ``paths.resource_path`` (which resolves assets bundled *inside* a
-PyInstaller exe), this file is meant to be edited next to the running
-program. In a frozen build that is the folder holding the .exe; in dev it is
-the repo root (where config.yaml lives). A missing or invalid key simply
-falls back to a sane default rather than crashing.
+This file is meant to be edited next to the running program. In a frozen
+build that is the folder holding the .exe; in dev it is the repo root (where
+config.yaml lives). A missing or invalid key simply falls back to a sane
+default rather than crashing.
 """
 
 import functools
@@ -14,7 +13,7 @@ from pathlib import Path
 import yaml
 
 DEFAULT_CONFIG = {
-    "duration_minutes": 15,
+    "duration_seconds": 900,
     "volume": 0.5,
     "sounds": {
         "alert": "alert.mp3",
@@ -92,12 +91,12 @@ def _clamp_volume(value) -> float:
 def seconds() -> int:
     """Countdown duration in whole seconds (duration_minutes -> seconds)."""
     raw = _load_raw()
-    minutes = raw.get("duration_minutes", DEFAULT_CONFIG["duration_minutes"])
+    seconds = raw.get("duration_seconds", DEFAULT_CONFIG["duration_seconds"])
     try:
-        minutes = int(minutes)
+        seconds = int(seconds)
     except (TypeError, ValueError):
-        minutes = DEFAULT_CONFIG["duration_minutes"]
-    return max(1, minutes * 60)
+        seconds = DEFAULT_CONFIG["duration_minutes"]
+    return max(1, seconds)
 
 
 @functools.lru_cache(maxsize=1)
@@ -117,6 +116,20 @@ def sound_file(name: str) -> str:
     if isinstance(sounds, dict) and name in sounds and isinstance(sounds[name], str):
         return sounds[name]
     return DEFAULT_CONFIG["sounds"].get(name, "")
+
+
+def sound_path(name: str) -> Path:
+    """Resolve a named sound effect to a file *next to the running program*.
+
+    Looks under ``<program dir>/assets/<filename>`` (same folder that holds
+    ``config.yaml`` and ``logs/``), so venues can drop in or replace sound
+    files without rebuilding the exe. Returns ``Path()`` (empty) when the
+    effect is disabled via an empty configured name.
+    """
+    filename = sound_file(name)
+    if not filename:
+        return Path()
+    return _prog_dir() / "assets" / filename
 
 
 @functools.lru_cache(maxsize=1)

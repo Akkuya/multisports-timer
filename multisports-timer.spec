@@ -8,13 +8,11 @@ Output: dist/multisports-timer.exe
 """
 from pathlib import Path
 
-def asset_files():
-    """Every file under assets/, so future SFX (e.g. ending-soon.mp3) are
-    automatically bundled without editing the spec each time."""
-    assets_dir = Path(SPECPATH) / "assets"
-    if not assets_dir.is_dir():
-        return []
-    return [(str(p), "assets") for p in assets_dir.iterdir() if p.is_file()]
+# Datas: none bundled. Sound effects are deliberately NOT packed into the exe
+# — they are loaded at runtime from the portable "<program dir>/assets" folder
+# next to the .exe (see config.sound_path), so venues can drop in or replace
+# audio files without rebuilding. Ship the exe together with an assets folder
+# containing any sound files you want the timer to play.
 
 # Disable PyInstaller's attempt to bulk-copy every dynamic lib in PySide6
 # (that drags in Qt6WebEngineCore.dll ~194 MB and dozens of unused Qt
@@ -24,7 +22,7 @@ a = Analysis(
     ["main.py"],
     pathex=[],
     binaries=[],
-    datas=asset_files(),
+    datas=[],
     hiddenimports=[
         "PySide6.QtMultimedia",
     ],

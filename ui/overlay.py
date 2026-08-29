@@ -5,9 +5,9 @@ from PySide6.QtGui import QFont, QFontMetrics, QLinearGradient, QPainter, QPaint
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
 from audio.media_player import SoundManager
-from config import keybinds, seconds, sound_file, volume
+from config import keybinds, seconds, sound_path, volume
+import config
 from input.hotkeys import GlobalHotkeyManager
-from paths import resource_path
 from sessions_log import log_event
 import sessions_log
 from timer.session import SessionTimer
@@ -46,10 +46,12 @@ class Overlay(QWidget):
         self.sounds = SoundManager(default_volume=volume())
         # Sound effects — configured in config.yaml; a missing file (or an
         # empty name, disabling it) simply no-ops until the asset exists.
+        # Files are resolved from the portable <program dir>/assets folder so
+        # venues can swap audio without rebuilding (see config.sound_path).
         for name in ("alert", "ending_soon", "start"):
-            filename = sound_file(name)
-            if filename:
-                self.sounds.add(name, resource_path("assets", filename))
+            path = sound_path(name)
+            if path:
+                self.sounds.add(name, path)
         self._finished_entered = False
         self._last_warn_played = False
 
