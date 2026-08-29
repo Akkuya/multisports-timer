@@ -33,17 +33,20 @@ class Overlay(QWidget):
         self.timer.start(1000)
         self._register_keybinds()
         self.alert_player = AlertPlayer(resource_path("assets", "alert.mp3"))
+        self.alert_played = False
         
     
     def on_tick(self):
         self.session.tick()
         self.label.setText(self.session.formatted())
         
-        if self.session.state == SessionState.FINISHED:    
+        if self.session.state == SessionState.FINISHED:
             self.show_finished_state()
             
     def show_finished_state(self):
-        self.play_alert()
+        if not self.alert_played:
+            self.play_alert()
+            self.alert_played = True
         self.setFixedSize(self.screen.width(), self.screen.height())
         self.move(0,0)
         self.label.setText("Done")
@@ -55,6 +58,7 @@ class Overlay(QWidget):
 
     def reset_session(self):
         self.session.reset()
+        self.alert_played = False
         self.restore_normal_state()
 
     def _register_keybinds(self):
