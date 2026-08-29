@@ -1,3 +1,5 @@
+<img src="app_icon.png" width="129"/> 
+
 # Multisports Timer
 
 A staff-controlled countdown timer overlay for the TruGolf E6 golf simulator
