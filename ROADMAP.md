@@ -13,7 +13,8 @@ multisports-timer/
 ├── README.md
 ├── pyproject.toml              # project metadata, dependencies
 ├── uv.lock                     # pinned dependency lockfile
-├── config.yaml                 # duration, screen position, hotkey bindings (WIP)
+├── config.yaml                 # runtime settings: duration, volume, sound effects
+├── config.py                   # loads config.yaml with safe defaults
 ├── .gitignore
 ├── main.py                     # entry point — launches the overlay
 ├── paths.py                    # resource_path() — resolves assets in dev & frozen builds

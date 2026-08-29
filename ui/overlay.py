@@ -5,6 +5,7 @@ from PySide6.QtGui import QFont, QFontMetrics, QLinearGradient, QPainter, QPaint
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
 from audio.media_player import SoundManager
+from config import seconds, sound_file, volume
 from input.hotkeys import GlobalHotkeyManager
 from paths import resource_path
 from timer.session import SessionTimer
@@ -32,17 +33,19 @@ class Overlay(QWidget):
         self.screen = QApplication.primaryScreen().geometry()
         self._normal_pos = (self.screen.width() - PANEL_W - 20, 20)
 
-        self.session = SessionTimer()
+        self.session = SessionTimer(duration_seconds=seconds())
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_tick)
         self.timer.start(1000)
         self._register_keybinds()
 
-        self.sounds = SoundManager(default_volume=0.5)
-        self.sounds.add("alert", resource_path("assets", "alert.mp3"))
-        # Subtle effects — assets are optional; they no-op until the file exists.
-        self.sounds.add("ending_soon", resource_path("assets", "ending-soon.mp3"))
-        self.sounds.add("start", resource_path("assets", "start.mp3"))
+        self.sounds = SoundManager(default_volume=volume())
+        # Sound effects — configured in config.yaml; a missing file (or an
+        # empty name, disabling it) simply no-ops until the asset exists.
+        for name in ("alert", "ending_soon", "start"):
+            filename = sound_file(name)
+            if filename:
+                self.sounds.add(name, resource_path("assets", filename))
         self._finished_entered = False
         self._last_warn_played = False
 
@@ -59,7 +62,7 @@ class Overlay(QWidget):
         self._fade_on_finished = None
 
         # widget setup
-        self.lbl_time = QLabel("15:00", self)
+        self.lbl_time = QLabel(self.session.formatted(), self)
         self.lbl_caption = QLabel("TIME REMAINING", self)
         self._style_labels()
         self.setFixedSize(PANEL_W, PANEL_H)
