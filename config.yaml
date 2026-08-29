@@ -3,7 +3,7 @@
 # Missing or invalid keys fall back to safe defaults.
 
 # Countdown length in seconds.
-duration_seconds: 15
+duration_seconds: 900
 
 # Master sound volume (0.0 – 1.0).
 volume: 0.5
