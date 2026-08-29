@@ -1,35 +1,54 @@
-from PySide6.QtCore import QTimer
+from typing import Callable, Optional
+
 from timer.state import SessionState
 
 
 class SessionTimer:
-    """Pure countdown state machine with no Qt/UI coupling."""
+    """Pure countdown state machine with no Qt/UI coupling.
 
-    def __init__(self, duration_seconds=15):
+    UI layers may pass an ``on_state_change`` callback invoked with the new
+    state on every actual transition, so they can react immediately instead
+    of polling.
+    """
+
+    def __init__(self, duration_seconds: int = 15, on_state_change: Optional[Callable[[SessionState], None]] = None):
+        self.on_state_change = on_state_change
         self.duration = duration_seconds
-        self.reset()
+        self.remaining = self.duration
+        self.state = SessionState.IDLE
+
+    def _set_state(self, target: SessionState):
+        if self.state == target:
+            return
+        self.state = target
+        if self.on_state_change is not None:
+            self.on_state_change(target)
+
+    @property
+    def is_paused(self) -> bool:
+        return self.state == SessionState.PAUSED
 
     def start(self):
         if self.state != SessionState.IDLE:
             return
         self.remaining = self.duration
-        self.state = SessionState.RUNNING
+        self._set_state(SessionState.RUNNING)
 
     def tick(self):
         if self.state != SessionState.RUNNING:
             return
         self.remaining -= 1
         if self.remaining <= 0:
-            self.state = SessionState.FINISHED
+            self._set_state(SessionState.FINISHED)
 
     def reset(self):
         self.remaining = self.duration
-        self.state = SessionState.IDLE
+        self._set_state(SessionState.IDLE)
 
     def toggle_pause(self):
         if self.state == SessionState.FINISHED:
             return
-        self.state = (
+        self._set_state(
             SessionState.PAUSED
             if self.state == SessionState.RUNNING
             else SessionState.RUNNING
@@ -40,4 +59,4 @@ class SessionTimer:
         return f"{mins:02d}:{secs:02d}"
 
     def add_min(self):
-        self.remaining+=60
+        self.remaining += 60

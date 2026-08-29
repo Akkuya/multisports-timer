@@ -17,6 +17,7 @@ TEXT_MUTED = QColor(190, 200, 210, 255)
 ACCENT_LIVE = QColor(56, 232, 160, 255)     # golf-green "live"
 ACCENT_WARN = QColor(255, 176, 32, 255)     # amber, last minute
 ACCENT_ENDING = QColor(240, 160, 180, 255)  # soft rose, final seconds
+ACCENT_PAUSED = QColor(255, 200, 40, 255)   # vivid amber, paused
 
 # ---- fullscreen finished screen --------------------------------------------
 ALERT_LIGHT = QColor(184, 167, 212, 255)  # soft lavender pulse
