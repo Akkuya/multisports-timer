@@ -21,14 +21,13 @@ class GlobalHotkeyManager(QObject):
         self._trigger.connect(self._dispatch)
 
     def register(self, key: str, description: str, handler: Callable[[], None]):
-        # your job: store the binding, wire up keyboard.on_press_key
-        # so the callback emits self._trigger.emit(key) instead of
-        # calling handler() directly (that's the thread-hop)
-        
         hotkey = HotkeyBinding(key=key, description=description, handler=handler)
         self._bindings[key] = hotkey
         print(hotkey)
-        keyboard.on_press_key(key, callback=lambda _, k=key: self._trigger.emit(k))
+        # add_hotkey accepts both single keys ("r") and chords ("ctrl+shift+q").
+        # The callback runs on the keyboard thread, so hop to the Qt thread via
+        # the signal instead of touching widgets directly.
+        keyboard.add_hotkey(key, lambda: self._trigger.emit(key))
 
         
     def _dispatch(self, key: str):
