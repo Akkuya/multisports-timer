@@ -1,14 +1,11 @@
-from pathlib import Path
-
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
 from audio.media_player import AlertPlayer
+from paths import resource_path
 from timer.state import SessionState
 from input.hotkeys import GlobalHotkeyManager
 from timer.session import SessionTimer
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class Overlay(QWidget):
@@ -35,7 +32,7 @@ class Overlay(QWidget):
         self.timer.timeout.connect(self.on_tick)
         self.timer.start(1000)
         self._register_keybinds()
-        self.alert_player = AlertPlayer(PROJECT_ROOT / "assets" / "alert.mp3")
+        self.alert_player = AlertPlayer(resource_path("assets", "alert.mp3"))
         
     
     def on_tick(self):
