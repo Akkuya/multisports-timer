@@ -46,13 +46,14 @@ class SessionTimer:
         self._set_state(SessionState.IDLE)
 
     def toggle_pause(self):
-        if self.state == SessionState.FINISHED:
-            return
-        self._set_state(
-            SessionState.PAUSED
-            if self.state == SessionState.RUNNING
-            else SessionState.RUNNING
-        )
+        # Only toggle a session that is already in progress: pause a running
+        # timer or resume a paused one. A start (from IDLE) is a deliberate,
+        # separate action — the Enter key must never silently kick a new
+        # session off from the menu.
+        if self.state == SessionState.RUNNING:
+            self._set_state(SessionState.PAUSED)
+        elif self.state == SessionState.PAUSED:
+            self._set_state(SessionState.RUNNING)
 
     def formatted(self):
         mins, secs = divmod(max(self.remaining, 0), 60)

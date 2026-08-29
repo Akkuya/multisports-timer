@@ -9,6 +9,7 @@ from config import seconds, sound_file, volume
 from input.hotkeys import GlobalHotkeyManager
 from paths import resource_path
 from sessions_log import log_event
+import sessions_log
 from timer.session import SessionTimer
 from timer.state import SessionState
 from ui import palette
@@ -35,7 +36,7 @@ class Overlay(QWidget):
         self._normal_pos = (self.screen.width() - PANEL_W - 20, 20)
 
         self.session = SessionTimer(
-            duration_seconds=seconds(), on_state_change=self._on_session_state
+            duration_seconds=5, on_state_change=self._on_session_state
         )
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.on_tick)
@@ -117,6 +118,8 @@ class Overlay(QWidget):
         elif self.session.state == SessionState.RUNNING and self.session.remaining <= WARN_SECONDS:
             accent = palette.ACCENT_WARN
             self.lbl_caption.setText("LAST MINUTE")
+        elif self.session.state == SessionState.PAUSED:
+            self.lbl_caption.setText("PAUSED")
         elif self.session.state != SessionState.FINISHED:
             self.lbl_caption.setText("TIME REMAINING")
         color = accent
@@ -293,5 +296,6 @@ class Overlay(QWidget):
         # window first for a clean teardown, then sys.exit() guarantees the
         # process actually terminates. Do not 'simplify' this back to close().
         log_event("app_shutdown", "Application shutting down")
+        sessions_log.flush()
         self.close()
         sys.exit()
