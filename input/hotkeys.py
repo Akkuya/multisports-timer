@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable
-from PySide6.QtCore import Signal, QObject
+
 import keyboard
+from PySide6.QtCore import QObject, Signal
 
 
 @dataclass
@@ -12,7 +13,14 @@ class HotkeyBinding:
 
 
 class GlobalHotkeyManager(QObject):
-    _trigger = Signal(str)  # internal: key name crosses thread here
+    """Registers global hotkeys and dispatches them on the Qt thread.
+
+    The ``keyboard`` library fires callbacks on its own background thread, so
+    the key name is hopped across to the GUI thread via a Qt signal before
+    invoking the handler — widgets must only be touched on the Qt thread.
+    """
+
+    _trigger = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -21,21 +29,17 @@ class GlobalHotkeyManager(QObject):
         self._trigger.connect(self._dispatch)
 
     def register(self, key: str, description: str, handler: Callable[[], None]):
-        hotkey = HotkeyBinding(key=key, description=description, handler=handler)
-        self._bindings[key] = hotkey
-        print(hotkey)
+        binding = HotkeyBinding(key=key, description=description, handler=handler)
+        self._bindings[key] = binding
         # add_hotkey accepts both single keys ("r") and chords ("ctrl+shift+q").
-        # The callback runs on the keyboard thread, so hop to the Qt thread via
-        # the signal instead of touching widgets directly.
         keyboard.add_hotkey(key, lambda: self._trigger.emit(key))
 
-        
     def _dispatch(self, key: str):
-        # your job: look up the binding, check self._enabled, call handler
-        if not self._enabled: return
+        if not self._enabled:
+            return
         binding = self._bindings.get(key)
-        if not binding: return
-        
+        if binding is None:
+            return
         binding.handler()
 
     def set_enabled(self, enabled: bool):
