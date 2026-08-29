@@ -9,6 +9,12 @@ from pathlib import Path
 
 
 def resource_path(*parts: str) -> Path:
-    """Resolve a path to a bundled file, working in dev and frozen builds."""
-    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent))
+    """Resolve a path to a bundled file, working in dev and frozen builds.
+
+    When frozen, PyInstaller extracts assets under ``sys._MEIPASS``.
+    When running from source, assets live next to this module (the repo
+    root, since ``paths.py`` sits at the top level), so ``__file__``'s
+    parent is the base.
+    """
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
     return base.joinpath(*parts)
